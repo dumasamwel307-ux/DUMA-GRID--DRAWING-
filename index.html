@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DUMA GRID DRAWING</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #10141d;
+  color: white;
+  text-align: center;
+}
+
+header {
+  background: #087e52;
+  padding: 20px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.container {
+  padding: 15px;
+}
+
+button, select, input {
+  padding: 12px;
+  margin: 7px;
+  border-radius: 8px;
+  border: none;
+}
+
+button {
+  background: #08a66a;
+  color: white;
+  font-weight: bold;
+}
+
+.controls {
+  background: #202938;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+canvas {
+  max-width: 100%;
+  background: white;
+  border: 3px solid white;
+  margin-top: 15px;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+}
+
+footer {
+  padding: 20px;
+  color: #aaa;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>DUMA GRID DRAWING</h1>
+<p>Draw Like a Professional Artist</p>
+</header>
+
+<div class="container">
+
+<div class="controls">
+
+<h3>1. SELECT PHOTO</h3>
+
+<input type="file" id="photo" accept="image/*">
+
+<h3>2. GRID SETTINGS</h3>
+
+<label>Grid Size</label>
+
+<select id="grid">
+<option value="3">3 × 3</option>
+<option value="4">4 × 4</option>
+<option value="5" selected>5 × 5</option>
+<option value="6">6 × 6</option>
+<option value="8">8 × 8</option>
+<option value="10">10 × 10</option>
+<option value="12">12 × 12</option>
+<option value="15">15 × 15</option>
+</select>
+
+<label>
+<input type="checkbox" id="numbers" checked>
+Show Grid Numbers
+</label>
+
+<br>
+
+<button onclick="drawGrid()">GENERATE GRID</button>
+
+<button onclick="saveImage()">SAVE IMAGE</button>
+
+<button onclick="window.print()">SAVE PDF</button>
+
+</div>
+
+<canvas id="canvas" width="700" height="700"></canvas>
+
+</div>
+
+<footer>
+DUMA CREATIVE STUDIO © 2026
+</footer>
+
+<script>
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+let img = new Image();
+let loaded = false;
+
+document.getElementById("photo").addEventListener("change", function(e) {
+
+const file = e.target.files[0];
+
+if (!file) return;
+
+const reader = new FileReader();
+
+reader.onload = function(event) {
+
+img.onload = function() {
+loaded = true;
+drawGrid();
+};
+
+img.src = event.target.result;
+
+};
+
+reader.readAsDataURL(file);
+
+});
+
+function drawGrid() {
+
+if (!loaded) {
+alert("Please select a photo first!");
+return;
+}
+
+const size = Number(document.getElementById("grid").value);
+
+const showNumbers = document.getElementById("numbers").checked;
+
+ctx.clearRect(0, 0, 700, 700);
+
+const scale = Math.min(700 / img.width, 700 / img.height);
+
+const w = img.width * scale;
+const h = img.height * scale;
+
+const x = (700 - w) / 2;
+const y = (700 - h) / 2;
+
+ctx.drawImage(img, x, y, w, h);
+
+ctx.strokeStyle = "red";
+ctx.lineWidth = 1.2;
+
+for (let i = 0; i <= size; i++) {
+
+let gx = x + (w / size) * i;
+let gy = y + (h / size) * i;
+
+ctx.beginPath();
+ctx.moveTo(gx, y);
+ctx.lineTo(gx, y + h);
+ctx.stroke();
+
+ctx.beginPath();
+ctx.moveTo(x, gy);
+ctx.lineTo(x + w, gy);
+ctx.stroke();
+
+}
+
+if (showNumbers) {
+
+ctx.fillStyle = "blue";
+ctx.font = "bold 16px Arial";
+
+for (let row = 0; row < size; row++) {
+
+for (let col = 0; col < size; col++) {
+
+let number = row * size + col + 1;
+
+let nx = x + col * (w / size) + 5;
+let ny = y + row * (h / size) + 19;
+
+ctx.fillText(number, nx, ny);
+
+}
+
+}
+
+}
+
+}
+
+function saveImage() {
+
+if (!loaded) {
+alert("Select a photo first!");
+return;
+}
+
+const link = document.createElement("a");
+
+link.download = "DUMA-GRID-DRAWING.png";
+
+link.href = canvas.toDataURL("image/png");
+
+link.click();
+
+}
+
+</script>
+
+</body>
+  </html>
